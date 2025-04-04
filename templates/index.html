@@ -1,0 +1,60 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LectureLens - Summarizer</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    input[type=file] { margin-bottom: 15px; }
+    textarea { width: 100%; height: 200px; margin-top: 10px; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>🎓 LectureLens</h1>
+  <p>Upload a lecture/meeting audio or video file to get a summary and Q&A.</p>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" id="fileInput" accept=".mp3,.wav,.m4a,.mp4,.mov" required><br>
+    <button type="submit">Upload and Process</button>
+  </form>
+
+  <div id="result" style="margin-top: 30px;">
+    <h3>📝 Transcript</h3>
+    <textarea id="transcript" readonly></textarea>
+
+    <h3>📌 Summary</h3>
+    <textarea id="summary" readonly></textarea>
+
+    <h3>🧠 Q&A</h3>
+    <textarea id="qa" readonly></textarea>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    form.addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const fileInput = document.getElementById("fileInput");
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      const response = await fetch("/process", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.error) {
+        alert("Error: " + data.error);
+        return;
+      }
+
+      document.getElementById("transcript").value = data.transcript;
+      document.getElementById("summary").value = data.summary;
+      document.getElementById("qa").value = data.qa;
+    });
+  </script>
+</body>
+</html>
